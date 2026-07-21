@@ -12,7 +12,7 @@ const LABELS: Record<string, string> = {
   en: "English",
 };
 
-export function LanguageSelector() {
+export function LanguageSelector({ dropUp = true }: { dropUp?: boolean }) {
   const t = useT();
   const locale = useLocale();
   const router = useRouter();
@@ -56,7 +56,12 @@ export function LanguageSelector() {
             onClick={() => setOpen(false)}
             aria-hidden
           />
-          <div className="absolute bottom-full left-0 z-50 mb-1 w-36 rounded-lg border border-slate-800 bg-popover p-1 shadow-lg">
+          <div
+            className={cn(
+              "absolute left-0 z-50 w-36 rounded-lg border border-slate-800 bg-popover p-1 shadow-lg",
+              dropUp ? "bottom-full mb-1" : "top-full mt-1"
+            )}
+          >
             {LOCALES.map((l) => (
               <button
                 key={l}

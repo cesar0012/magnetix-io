@@ -13,7 +13,7 @@ export default async function AuthLayout({
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-[#0B0F19] p-4">
       <div className="absolute right-4 top-4">
-        <LanguageSelector />
+        <LanguageSelector dropUp={false} />
       </div>
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
