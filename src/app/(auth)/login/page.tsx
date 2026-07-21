@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/components/language-provider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -24,9 +26,7 @@ export default function LoginPage() {
     setLoading(false);
     if (err) {
       setError(
-        err.status === 429
-          ? "Demasiados intentos. Espera unos minutos."
-          : "Correo o contraseña incorrectos."
+        err.status === 429 ? t("login.rate limit") : t("login.invalid")
       );
       return;
     }
@@ -37,12 +37,12 @@ export default function LoginPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Iniciar sesión</CardTitle>
+        <CardTitle>{t("login.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="email">Correo</Label>
+            <Label htmlFor="email">{t("login.email")}</Label>
             <Input
               id="email"
               type="email"
@@ -53,7 +53,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password">{t("login.password")}</Label>
             <Input
               id="password"
               type="password"
@@ -65,12 +65,12 @@ export default function LoginPage() {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Entrando…" : "Entrar"}
+            {loading ? t("login.submitting") : t("login.submit")}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            ¿Primera vez aquí?{" "}
+            {t("login.first time")}{" "}
             <Link href="/register" className="text-primary hover:underline">
-              Crear la cuenta inicial
+              {t("login.create account")}
             </Link>
           </p>
         </form>

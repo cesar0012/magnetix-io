@@ -16,13 +16,16 @@ import type { Branding } from "@/lib/branding";
 import { cn, initials } from "@/lib/utils";
 import { signOut } from "@/lib/auth/client";
 import { useEvents } from "@/components/use-events";
+import { useT } from "@/components/language-provider";
+import { LanguageSelector } from "@/components/language-selector";
+import type { DictKey } from "@/lib/i18n/dict";
 
 const NAV = [
-  { href: "/inbox", label: "Bandeja", icon: Inbox, badge: true },
-  { href: "/pipeline", label: "Pipeline", icon: Kanban },
-  { href: "/contacts", label: "Contactos", icon: Users },
-  { href: "/agent", label: "Agente", icon: Sparkles },
-  { href: "/lab", label: "Laboratorio", icon: FlaskConical },
+  { href: "/inbox", label: "nav.inbox" as const, icon: Inbox, badge: true },
+  { href: "/pipeline", label: "nav.pipeline" as const, icon: Kanban },
+  { href: "/contacts", label: "nav.contacts" as const, icon: Users },
+  { href: "/agent", label: "nav.agent" as const, icon: Sparkles },
+  { href: "/lab", label: "nav.lab" as const, icon: FlaskConical },
 ] as const;
 
 export function AppNav({
@@ -36,6 +39,7 @@ export function AppNav({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useT();
   const [unread, setUnread] = useState(0);
 
   async function refetchUnread() {
@@ -70,7 +74,7 @@ export function AppNav({
           <span className="block truncate text-[16px] font-[650] leading-tight tracking-tight">
             {branding.name}
           </span>
-          <span className="block text-[11px] text-text-3">CRM · WhatsApp</span>
+          <span className="block text-[11px] text-text-3">{t("nav.crm whatsapp" as DictKey)}</span>
         </span>
       </div>
 
@@ -93,7 +97,7 @@ export function AppNav({
                 className={cn("h-[18px] w-[18px]", active ? "text-brand" : "text-text-3")}
                 strokeWidth={1.7}
               />
-              <span className="flex-1">{item.label}</span>
+              <span className="flex-1">{t(item.label)}</span>
               {"badge" in item && item.badge && unread > 0 && (
                 <span
                   className={cn(
@@ -127,7 +131,7 @@ export function AppNav({
           )}
           strokeWidth={1.7}
         />
-        Ajustes
+        {t("nav.settings")}
       </Link>
 
       <div className="mt-1 flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-accent">
@@ -137,13 +141,14 @@ export function AppNav({
         <span className="min-w-0 flex-1">
           <span className="block truncate text-[13px] font-semibold">{userName}</span>
           <span className="block text-[11px] text-text-3">
-            {role === "owner" ? "Propietario" : "Equipo"} · En línea
+            {role === "owner" ? t("nav.owner") : t("nav.team")} · {t("nav.online")}
           </span>
         </span>
+        <LanguageSelector />
         <button
           type="button"
-          aria-label="Cerrar sesión"
-          title="Cerrar sesión"
+          aria-label={t("nav.signout")}
+          title={t("nav.signout")}
           className="rounded p-1 text-text-3 hover:text-foreground"
           onClick={async () => {
             await signOut();

@@ -6,6 +6,7 @@ import type { ConversationDto } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { ContactAvatar } from "@/components/avatar";
 import { Button } from "@/components/ui/button";
+import { useT, useLocale } from "@/components/language-provider";
 import { formatTime, previewText } from "./helpers";
 
 const STAGE_DOT: Record<string, string> = {
@@ -17,6 +18,7 @@ const STAGE_DOT: Record<string, string> = {
 };
 
 function EmptyState({ onSeeded }: { onSeeded: () => void }) {
+  const t = useT();
   const [seeding, setSeeding] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -32,11 +34,8 @@ function EmptyState({ onSeeded }: { onSeeded: () => void }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
-      <p className="text-sm font-medium">Sin conversaciones todavía</p>
-      <p className="text-xs text-text-3">
-        Cuando alguien escriba a tu número de WhatsApp, su conversación
-        aparecerá aquí en tiempo real.
-      </p>
+      <p className="text-sm font-medium">{t("conv.empty title")}</p>
+      <p className="text-xs text-text-3">{t("conv.empty desc")}</p>
       {!failed && (
         <Button
           size="sm"
@@ -45,7 +44,7 @@ function EmptyState({ onSeeded }: { onSeeded: () => void }) {
           onClick={() => void seed()}
         >
           <Sparkles className="h-4 w-4" strokeWidth={1.7} />
-          {seeding ? "Cargando demo…" : "Cargar datos de demostración"}
+          {seeding ? t("conv.demo loading") : t("conv.demo button")}
         </Button>
       )}
     </div>
@@ -65,6 +64,8 @@ export function ConversationList({
 }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const t = useT();
+  const locale = useLocale();
 
   const loading = conversationsProp === null;
   const conversations = conversationsProp ?? [];
@@ -85,13 +86,13 @@ export function ConversationList({
     <div className="flex h-full flex-col">
       <header className="border-b px-4 pb-3 pt-4">
         <div className="mb-3 flex items-baseline gap-2">
-          <h2 className="text-[17px] font-[650] tracking-tight">Bandeja</h2>
+          <h2 className="text-[17px] font-[650] tracking-tight">{t("conv.title")}</h2>
           <span className="text-sm text-text-3">{conversations.length}</span>
         </div>
         <div className="flex items-center gap-2 rounded-md border bg-secondary px-3 py-[7px] transition-colors focus-within:border-brand focus-within:bg-background focus-within:ring-[3px] focus-within:ring-brand-soft">
           <Search className="h-4 w-4 shrink-0 text-text-3" strokeWidth={1.7} />
           <input
-            placeholder="Buscar conversación…"
+            placeholder={t("conv.search")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-transparent text-[13px] outline-none placeholder:text-text-3"
@@ -102,8 +103,8 @@ export function ConversationList({
       <div className="flex gap-1.5 border-b px-4 py-2.5">
         {(
           [
-            { id: "all", label: "Todas", count: searched.length },
-            { id: "unread", label: "No leídas", count: unreadCount },
+            { id: "all", label: t("conv.all"), count: searched.length },
+            { id: "unread", label: t("conv.unread"), count: unreadCount },
           ] as const
         ).map((f) => (
           <button
@@ -131,12 +132,12 @@ export function ConversationList({
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <p className="p-6 text-center text-xs text-text-3">Cargando…</p>
+          <p className="p-6 text-center text-xs text-text-3">{t("conv.loading")}</p>
         ) : conversations.length === 0 ? (
           <EmptyState onSeeded={onSeeded} />
         ) : visible.length === 0 ? (
           <p className="p-6 text-center text-xs text-text-3">
-            Sin resultados para este filtro.
+            {t("conv.no results")}
           </p>
         ) : (
           <ul>
@@ -177,7 +178,7 @@ export function ConversationList({
                             unread ? "font-semibold text-brand" : "text-text-3"
                           )}
                         >
-                          {formatTime(c.lastMessageAt)}
+                          {formatTime(c.lastMessageAt, locale)}
                         </span>
                       </span>
                       <span className="mt-0.5 flex items-center justify-between gap-2">
@@ -187,7 +188,7 @@ export function ConversationList({
                             unread ? "font-medium text-text-2" : "text-text-3"
                           )}
                         >
-                          {previewText(c.preview)}
+                          {previewText(c.preview, t)}
                         </span>
                         {unread && (
                           <span className="flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-brand px-1.5 text-[10.5px] font-semibold text-white">
@@ -210,7 +211,7 @@ export function ConversationList({
                         {c.handoffAt && (
                           <span className="inline-flex items-center gap-1 rounded-full border border-amber-700/30 bg-amber-950/20 px-2 py-0.5 text-[11px] text-amber-300">
                             <UserRound className="h-3 w-3" strokeWidth={1.7} />
-                            Atención humana
+                            {t("conv.human handoff")}
                           </span>
                         )}
                       </span>

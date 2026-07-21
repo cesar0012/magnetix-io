@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/components/language-provider";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,13 +27,11 @@ export default function RegisterPage() {
     setLoading(false);
     if (err) {
       if (err.status === 403) {
-        setError(
-          "El registro está cerrado: esta instancia ya tiene su organización. Pide acceso al propietario."
-        );
+        setError(t("register.closed"));
       } else if (err.status === 429) {
-        setError("Demasiados intentos. Espera unos minutos.");
+        setError(t("register.rate limit"));
       } else {
-        setError(err.message ?? "No se pudo crear la cuenta.");
+        setError(err.message ?? t("register.failed"));
       }
       return;
     }
@@ -42,16 +42,13 @@ export default function RegisterPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Crear cuenta</CardTitle>
-        <CardDescription>
-          El primer registro crea la organización de esta instancia y queda
-          como propietario.
-        </CardDescription>
+        <CardTitle>{t("register.title")}</CardTitle>
+        <CardDescription>{t("register.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="name">Tu nombre</Label>
+            <Label htmlFor="name">{t("register.name")}</Label>
             <Input
               id="name"
               required
@@ -60,7 +57,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email">Correo</Label>
+            <Label htmlFor="email">{t("register.email")}</Label>
             <Input
               id="email"
               type="email"
@@ -71,7 +68,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password">{t("register.password")}</Label>
             <Input
               id="password"
               type="password"
@@ -84,12 +81,12 @@ export default function RegisterPage() {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Creando…" : "Crear cuenta"}
+            {loading ? t("register.submitting") : t("register.submit")}
           </Button>
           <p className="text-center text-sm text-muted-foreground">
-            ¿Ya tienes cuenta?{" "}
+            {t("register.has account")}{" "}
             <Link href="/login" className="text-primary hover:underline">
-              Inicia sesión
+              {t("register.signin")}
             </Link>
           </p>
         </form>

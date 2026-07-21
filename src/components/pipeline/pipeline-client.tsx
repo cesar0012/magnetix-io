@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
 import { ContactAvatar } from "@/components/avatar";
 import { Button } from "@/components/ui/button";
 import { formatTime } from "@/components/inbox/helpers";
+import { useT, useLocale } from "@/components/language-provider";
+import type { DictKey } from "@/lib/i18n/client";
+import type { Locale } from "@/lib/i18n/client";
 import { StageManager } from "./stage-manager";
 
 export type BoardLead = {
@@ -31,6 +34,8 @@ export type BoardLead = {
 };
 
 export function PipelineClient() {
+  const t = useT();
+  const locale = useLocale();
   const [stages, setStages] = useState<StageDto[]>([]);
   const [leads, setLeads] = useState<BoardLead[]>([]);
   const [activeLead, setActiveLead] = useState<BoardLead | null>(null);
@@ -81,9 +86,9 @@ export function PipelineClient() {
   return (
     <div className="flex h-full flex-col">
       <header className="flex items-center justify-between border-b px-6 py-4">
-        <h2 className="font-semibold">Pipeline</h2>
+        <h2 className="font-semibold">{t("pipeline.title")}</h2>
         <Button variant="outline" size="sm" onClick={() => setManaging(true)}>
-          <Settings2 className="h-4 w-4" /> Gestionar etapas
+          <Settings2 className="h-4 w-4" /> {t("pipeline.manage stages")}
         </Button>
       </header>
 
@@ -98,6 +103,7 @@ export function PipelineClient() {
               <StageColumn
                 key={stage.id}
                 stage={stage}
+                t={t}
                 leads={leads
                   .filter((l) => l.stageId === stage.id)
                   .sort((a, b) => a.position - b.position)}
@@ -105,7 +111,7 @@ export function PipelineClient() {
             ))}
           </div>
           <DragOverlay>
-            {activeLead ? <LeadCard lead={activeLead} overlay /> : null}
+            {activeLead ? <LeadCard lead={activeLead} t={t} locale={locale} overlay /> : null}
           </DragOverlay>
         </DndContext>
       </div>
@@ -121,7 +127,15 @@ export function PipelineClient() {
   );
 }
 
-function StageColumn({ stage, leads }: { stage: StageDto; leads: BoardLead[] }) {
+function StageColumn({
+  stage,
+  leads,
+  t,
+}: {
+  stage: StageDto;
+  leads: BoardLead[];
+  t: (key: DictKey) => string;
+}) {
   const { setNodeRef, isOver } = useDroppable({ id: stage.id });
   return (
     <div
@@ -145,14 +159,20 @@ function StageColumn({ stage, leads }: { stage: StageDto; leads: BoardLead[] }) 
       </div>
       <div className="flex-1 space-y-2 overflow-y-auto p-2">
         {leads.map((lead) => (
-          <DraggableLead key={lead.id} lead={lead} />
+          <DraggableLead key={lead.id} lead={lead} t={t} />
         ))}
       </div>
     </div>
   );
 }
 
-function DraggableLead({ lead }: { lead: BoardLead }) {
+function DraggableLead({
+  lead,
+  t,
+}: {
+  lead: BoardLead;
+  t: (key: DictKey) => string;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: lead.id,
   });
@@ -163,12 +183,22 @@ function DraggableLead({ lead }: { lead: BoardLead }) {
       {...attributes}
       className={cn(isDragging && "opacity-40")}
     >
-      <LeadCard lead={lead} />
+      <LeadCard lead={lead} t={t} />
     </div>
   );
 }
 
-function LeadCard({ lead, overlay = false }: { lead: BoardLead; overlay?: boolean }) {
+function LeadCard({
+  lead,
+  t,
+  locale,
+  overlay = false,
+}: {
+  lead: BoardLead;
+  t: (key: DictKey) => string;
+  locale?: Locale;
+  overlay?: boolean;
+}) {
   return (
     <div
       className={cn(
@@ -182,15 +212,15 @@ function LeadCard({ lead, overlay = false }: { lead: BoardLead; overlay?: boolea
           <p className="truncate text-sm font-medium">{lead.contact.name}</p>
           <p className="text-[11px] text-muted-foreground">
             {lead.lastActivityAt
-              ? `Actividad: ${formatTime(lead.lastActivityAt)}`
-              : "Sin actividad"}
+              ? `${t("pipeline.activity")} ${formatTime(lead.lastActivityAt, locale ?? "es")}`
+              : t("pipeline.no activity")}
           </p>
         </div>
         {lead.conversationId && (
           <Link
             href={`/inbox?contact=${lead.contact.id}`}
             onPointerDown={(e) => e.stopPropagation()}
-            aria-label="Abrir conversación"
+            aria-label={t("pipeline.open conv")}
             className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <MessageSquareText className="h-4 w-4" />

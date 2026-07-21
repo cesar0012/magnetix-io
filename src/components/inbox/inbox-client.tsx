@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ContactAvatar } from "@/components/avatar";
 import type { ConversationDto, MessageDto } from "@/lib/types";
 import { useEvents } from "@/components/use-events";
+import { useT } from "@/components/language-provider";
 import { ConversationList } from "./conversation-list";
 import { MessageThread } from "./message-thread";
 import { Composer } from "./composer";
@@ -22,6 +23,7 @@ export function InboxClient() {
   // Se incrementa con cada evento SSE que puede cambiar la etapa/lead o el
   // estado del agente: el panel de detalles lo observa y refetch en vivo.
   const [detailRev, setDetailRev] = useState(0);
+  const t = useT();
 
   useEffect(() => {
     setPanelOpen(localStorage.getItem("vocero.panelOpen") !== "false");
@@ -120,7 +122,7 @@ export function InboxClient() {
 
   const sendText = useCallback(
     async (text: string): Promise<string | null> => {
-      if (!selectedIdRef.current) return "Sin conversación seleccionada";
+      if (!selectedIdRef.current) return t("inbox.no conv selected");
       const res = await fetch(
         `/api/conversations/${selectedIdRef.current}/messages`,
         {
@@ -129,18 +131,18 @@ export function InboxClient() {
           body: JSON.stringify({ text }),
         }
       ).catch(() => null);
-      if (!res) return "Sin conexión con el servidor";
+      if (!res) return t("inbox.no server");
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as {
           error?: { message?: string };
         } | null;
-        return data?.error?.message ?? "No se pudo enviar el mensaje";
+        return data?.error?.message ?? t("inbox.send error");
       }
       if (selectedIdRef.current) void refetchMessages(selectedIdRef.current);
       void refetchConversations();
       return null;
     },
-    [refetchMessages, refetchConversations]
+    [refetchMessages, refetchConversations, t]
   );
 
   const patchConversation = useCallback(
@@ -189,7 +191,7 @@ export function InboxClient() {
                     }
                   >
                     {selected.windowOpen
-                      ? "ventana abierta"
+                      ? t("inbox.window open short")
                       : `+${selected.contact.phone}`}
                   </p>
                 </div>
@@ -197,7 +199,7 @@ export function InboxClient() {
               {!panelOpen && (
                 <button
                   onClick={() => togglePanel(true)}
-                  aria-label="Mostrar detalles"
+                  aria-label={t("inbox.show details")}
                   className="rounded-sm border p-1.5 text-text-3 hover:bg-accent hover:text-foreground"
                 >
                   <PanelRight className="h-4 w-4" strokeWidth={1.7} />
@@ -217,7 +219,7 @@ export function InboxClient() {
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center bg-chat text-sm text-text-3">
-            Elige una conversación para ver el hilo
+            {t("inbox.pick conv")}
           </div>
         )}
       </section>

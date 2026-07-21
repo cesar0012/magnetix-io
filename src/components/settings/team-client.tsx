@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/components/language-provider";
 
 type Member = {
   id: string;
@@ -25,6 +26,7 @@ export function TeamClient() {
   const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const t = useT();
 
   const refetch = useCallback(async () => {
     const res = await fetch("/api/settings/team").catch(() => null);
@@ -61,7 +63,7 @@ export function TeamClient() {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo crear la cuenta");
+      setError(data?.error?.message ?? t("team.create error"));
       return;
     }
     setCreated({ email, password: tempPassword });
@@ -75,16 +77,15 @@ export function TeamClient() {
     <div className="max-w-2xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Crear cuenta de equipo</CardTitle>
+          <CardTitle>{t("team.title")}</CardTitle>
           <CardDescription>
-            Sin correos ni invitaciones: comparte tú mismo la contraseña
-            temporal con tu compañero (se muestra UNA sola vez).
+            {t("team.desc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="team-name">Nombre</Label>
+              <Label htmlFor="team-name">{t("team.name")}</Label>
               <Input
                 id="team-name"
                 value={name}
@@ -92,7 +93,7 @@ export function TeamClient() {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="team-email">Correo</Label>
+              <Label htmlFor="team-email">{t("team.email")}</Label>
               <Input
                 id="team-email"
                 type="email"
@@ -102,27 +103,27 @@ export function TeamClient() {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="team-password">Contraseña temporal</Label>
+            <Label htmlFor="team-password">{t("team.temp password")}</Label>
             <div className="flex gap-2">
               <Input
                 id="team-password"
                 value={tempPassword}
                 onChange={(e) => setTempPassword(e.target.value)}
-                placeholder="mínimo 8 caracteres"
+                placeholder={t("team.password placeholder")}
               />
               <Button variant="outline" onClick={generatePassword}>
-                Generar
+                {t("team.generate")}
               </Button>
             </div>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           {created && (
             <div className="rounded-md border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm">
-              <p className="font-medium text-emerald-300">Cuenta creada ✓</p>
+              <p className="font-medium text-emerald-300">{t("team.created")}</p>
               <p className="mt-1 text-emerald-300/90">
-                Comparte estos datos ahora (no se volverán a mostrar):
+                {t("team.share data")}
                 <br />
-                <code>{created.email}</code> · contraseña{" "}
+                <code>{created.email}</code> · {t("team.password")}{" "}
                 <code>{created.password}</code>
               </p>
             </div>
@@ -134,14 +135,14 @@ export function TeamClient() {
             onClick={() => void create()}
           >
             <UserPlus className="h-4 w-4" />
-            {saving ? "Creando…" : "Crear cuenta"}
+            {saving ? t("common.saving") : t("team.create")}
           </Button>
         </CardContent>
       </Card>
 
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Miembros
+          {t("team.members")}
         </p>
         {members.map((m) => (
           <div
@@ -154,7 +155,7 @@ export function TeamClient() {
               <p className="text-xs text-muted-foreground">{m.email}</p>
             </div>
             <Badge variant={m.role === "owner" ? "default" : "secondary"}>
-              {m.role === "owner" ? "Propietario" : "Miembro"}
+              {m.role === "owner" ? t("team.member owner") : t("team.member")}
             </Badge>
           </div>
         ))}

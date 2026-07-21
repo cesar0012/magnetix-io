@@ -6,6 +6,7 @@ import type { StageDto } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useT } from "@/components/language-provider";
 
 /** Gestión de etapas: renombrar, reordenar, agregar, eliminar (con reasignación). */
 export function StageManager({
@@ -17,6 +18,7 @@ export function StageManager({
   onClose: () => void;
   onChanged: () => void;
 }) {
+  const t = useT();
   const [newName, setNewName] = useState("");
   const [deleting, setDeleting] = useState<StageDto | null>(null);
   const [moveTo, setMoveTo] = useState("");
@@ -78,7 +80,7 @@ export function StageManager({
         setDeleting(stage);
         return;
       }
-      setError(data?.error?.message ?? "No se pudo eliminar");
+      setError(data?.error?.message ?? t("pipeline.delete error"));
       return;
     }
     setDeleting(null);
@@ -97,7 +99,7 @@ export function StageManager({
         className="w-full max-w-lg rounded-lg border bg-card p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-4 font-semibold">Etapas del pipeline</h3>
+        <h3 className="mb-4 font-semibold">{t("pipeline.stages title")}</h3>
         <ul className="space-y-2">
           {sorted.map((s, i) => (
             <li key={s.id} className="flex items-center gap-2">
@@ -108,13 +110,13 @@ export function StageManager({
               />
               {s.kind !== "open" ? (
                 <Badge variant={s.kind === "won" ? "success" : "secondary"}>
-                  {s.kind === "won" ? "ganado" : "perdido"}
+                  {s.kind === "won" ? t("pipeline.won") : t("pipeline.lost")}
                 </Badge>
               ) : (
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Eliminar etapa"
+                  aria-label={t("pipeline.delete stage")}
                   onClick={() => void remove(s, null)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -124,7 +126,7 @@ export function StageManager({
                 variant="ghost"
                 size="icon"
                 disabled={i === 0}
-                aria-label="Subir"
+                aria-label={t("pipeline.move up")}
                 onClick={() => void move(s, -1)}
               >
                 <ArrowUp className="h-4 w-4" />
@@ -133,7 +135,7 @@ export function StageManager({
                 variant="ghost"
                 size="icon"
                 disabled={i === sorted.length - 1}
-                aria-label="Bajar"
+                aria-label={t("pipeline.move down")}
                 onClick={() => void move(s, 1)}
               >
                 <ArrowDown className="h-4 w-4" />
@@ -145,7 +147,7 @@ export function StageManager({
         {deleting && (
           <div className="mt-4 rounded-md border border-amber-700/30 bg-amber-950/20 p-3">
             <p className="text-sm text-amber-300">
-              &quot;{deleting.name}&quot; tiene tarjetas. Elige a dónde moverlas:
+              &quot;{deleting.name}&quot; {t("pipeline.has cards")}
             </p>
             <div className="mt-2 flex gap-2">
               <select
@@ -153,7 +155,7 @@ export function StageManager({
                 onChange={(e) => setMoveTo(e.target.value)}
                 className="h-9 flex-1 rounded-lg border border-slate-700 bg-[#0B0F19] px-3 text-sm text-slate-200"
               >
-                <option value="">Etapa destino…</option>
+                <option value="">{t("pipeline.target stage")}</option>
                 {sorted
                   .filter((s) => s.id !== deleting.id)
                   .map((s) => (
@@ -168,7 +170,7 @@ export function StageManager({
                 disabled={!moveTo}
                 onClick={() => void remove(deleting, moveTo)}
               >
-                Mover y eliminar
+                {t("pipeline.move delete")}
               </Button>
             </div>
           </div>
@@ -178,7 +180,7 @@ export function StageManager({
 
         <div className="mt-4 flex gap-2 border-t pt-4">
           <Input
-            placeholder="Nueva etapa…"
+            placeholder={t("pipeline.new stage")}
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => {
@@ -186,13 +188,13 @@ export function StageManager({
             }}
           />
           <Button onClick={() => void add()} disabled={!newName.trim()}>
-            Agregar
+            {t("pipeline.add")}
           </Button>
         </div>
 
         <div className="mt-4 flex justify-end">
           <Button variant="ghost" onClick={onClose}>
-            Cerrar
+            {t("pipeline.close")}
           </Button>
         </div>
       </div>

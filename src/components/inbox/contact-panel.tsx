@@ -8,12 +8,14 @@ import { cn, formatPhone } from "@/lib/utils";
 import { ContactAvatar } from "@/components/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useT } from "@/components/language-provider";
+import type { DictKey } from "@/lib/i18n/dict";
 
-const HANDOFF_LABELS: Record<string, string> = {
-  cliente: "El cliente pidió un humano",
-  modelo: "El agente decidió escalar",
-  error: "Error del proveedor de IA",
-  ventana: "Ventana de 24h cerrada",
+const HANDOFF_LABELS: Record<string, DictKey> = {
+  cliente: "panel.handoff.client",
+  modelo: "panel.handoff.model",
+  error: "panel.handoff.error",
+  ventana: "panel.handoff.window",
 };
 
 export function ContactPanel({
@@ -41,6 +43,7 @@ export function ContactPanel({
   // cuando el agente aún no se ha configurado/encendido.
   const [agentEnabled, setAgentEnabled] = useState(false);
   const [aiConfigured, setAiConfigured] = useState(false);
+  const t = useT();
 
   const contactId = conversation.contact.id;
 
@@ -120,11 +123,11 @@ export function ContactPanel({
     <div className="flex h-full flex-col">
       <header className="sticky top-0 flex items-center justify-between border-b bg-background px-4 py-3">
         <h3 className="text-[13px] font-[650] uppercase tracking-wide text-text-2">
-          Detalles
+          {t("panel.details")}
         </h3>
         <button
           onClick={onClose}
-          aria-label="Ocultar panel"
+          aria-label={t("panel.hide")}
           className="rounded p-1 text-text-3 hover:bg-accent hover:text-foreground"
         >
           <ChevronRight className="h-4 w-4" strokeWidth={1.7} />
@@ -153,11 +156,13 @@ export function ContactPanel({
           {conversation.handoffAt && (
             <div className="mt-3 rounded-md border border-amber-700/30 bg-amber-950/20 p-3">
               <p className="flex items-center gap-1.5 text-[13px] font-medium text-amber-300">
-                <UserRound className="h-4 w-4" strokeWidth={1.7} /> Atención humana
+                <UserRound className="h-4 w-4" strokeWidth={1.7} /> {t("conv.human handoff")}
               </p>
               <p className="mt-1 text-xs text-amber-300/80">
-                {HANDOFF_LABELS[conversation.handoffReason ?? ""] ??
-                  "La IA está en pausa en esta conversación."}
+                {(() => {
+                  const key = HANDOFF_LABELS[conversation.handoffReason ?? ""];
+                  return key ? t(key) : t("panel.handoff paused");
+                })()}
               </p>
               <Button
                 size="sm"
@@ -166,7 +171,7 @@ export function ContactPanel({
                 disabled={!agentReady}
                 onClick={() => void onPatchConversation({ reactivate: true })}
               >
-                Reactivar IA
+                {t("panel.reactivate ai")}
               </Button>
             </div>
           )}
@@ -174,21 +179,21 @@ export function ContactPanel({
           <div className="mt-3 rounded-md border bg-secondary/50 px-3 py-2.5">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[13px] font-medium">IA en esta conversación</p>
+                <p className="text-[13px] font-medium">{t("panel.ai in conv")}</p>
                 <p className="text-[11px] text-text-3">
                   {!agentReady
-                    ? "Agente sin activar"
+                    ? t("panel.ai not ready")
                     : conversation.handoffAt
-                      ? "En pausa · atención humana"
+                      ? t("panel.ai paused human")
                       : conversation.aiEnabled
-                        ? "Respondiendo"
-                        : "En pausa"}
+                        ? t("panel.ai responding")
+                        : t("panel.ai paused")}
                 </p>
               </div>
               <button
                 role="switch"
                 aria-checked={aiActive}
-                aria-label="IA en esta conversación"
+                aria-label={t("panel.ai in conv")}
                 disabled={!agentReady}
                 onClick={() => {
                   if (!agentReady) return;
@@ -219,14 +224,14 @@ export function ContactPanel({
                 />
                 <p className="text-[11px] leading-relaxed text-amber-300">
                   {aiConfigured
-                    ? "La IA todavía no responde por su cuenta. Configura lo básico del agente y enciéndelo."
-                    : "Falta la clave de IA de la instancia (OPENROUTER_API_TOKEN) para que el agente pueda responder."}
+                    ? t("panel.ai configure hint")
+                    : t("panel.ai missing key")}
                   {aiConfigured && (
                     <Link
                       href="/agent"
                       className="ml-1 whitespace-nowrap font-medium text-brand-text underline underline-offset-2 hover:text-brand"
                     >
-                      Configurar agente →
+                      {t("panel.configure agent")}
                     </Link>
                   )}
                 </p>
@@ -239,7 +244,7 @@ export function ContactPanel({
         {stages.length > 0 && leadId && (
           <section className="border-b p-4">
             <p className="mb-3 text-[11px] font-semibold uppercase tracking-wide text-text-3">
-              Etapa del pipeline
+              {t("panel.stage")}
             </p>
             <ol>
               {stages.map((s, i) => {
@@ -257,7 +262,7 @@ export function ContactPanel({
                     )}
                     <button
                       onClick={() => void moveToStage(s.id)}
-                      aria-label={`Mover a ${s.name}`}
+                      aria-label={`${t("panel.move to")} ${s.name}`}
                       className={cn(
                         "relative z-10 mt-0.5 flex h-[15px] w-[15px] shrink-0 items-center justify-center rounded-full transition-colors",
                         done && "bg-brand text-white",
@@ -286,11 +291,11 @@ export function ContactPanel({
         {/* Notas */}
         <section className="p-4">
           <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-text-3">
-            Notas
+            {t("panel.notes")}
           </p>
           <Textarea
             rows={5}
-            placeholder="Notas internas sobre este contacto…"
+            placeholder={t("panel.notes placeholder")}
             value={notes}
             disabled={!notesLoaded}
             onChange={(e) => setNotes(e.target.value)}
@@ -302,7 +307,7 @@ export function ContactPanel({
             disabled={savingNotes || !notesLoaded}
             onClick={() => void saveNotes()}
           >
-            {savingNotes ? "Guardando…" : "Guardar notas"}
+            {savingNotes ? t("panel.saving") : t("panel.save notes")}
           </Button>
         </section>
       </div>

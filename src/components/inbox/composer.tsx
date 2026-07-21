@@ -6,6 +6,7 @@ import type { ConversationDto, TemplateDto } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { formatRemaining } from "./helpers";
 import { TemplateSender } from "./template-sender";
+import { useT } from "@/components/language-provider";
 
 export function Composer({
   conversation,
@@ -21,6 +22,7 @@ export function Composer({
   const [error, setError] = useState<string | null>(null);
   const [templates, setTemplates] = useState<TemplateDto[]>([]);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -64,12 +66,8 @@ export function Composer({
         <div className="mb-3 flex items-start gap-2 rounded-md border border-amber-700/30 bg-amber-950/20 p-3 text-sm text-amber-300">
           <Clock3 className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.7} />
           <div>
-            <p className="font-medium">La ventana de 24 horas está cerrada.</p>
-            <p className="opacity-80">
-              WhatsApp solo permite texto libre dentro de las 24 horas
-              siguientes al último mensaje del cliente. Para retomar la
-              conversación, envía una plantilla aprobada.
-            </p>
+            <p className="font-medium">{t("composer.window closed")}</p>
+            <p className="opacity-80">{t("composer.window closed desc")}</p>
           </div>
         </div>
         <TemplateSender conversationId={conversation.id} onSent={onSent} />
@@ -101,7 +99,7 @@ export function Composer({
       <div className="flex items-end gap-2 rounded-md border bg-background px-3 py-2 transition-shadow focus-within:border-brand focus-within:ring-[3px] focus-within:ring-brand-soft">
         <textarea
           ref={taRef}
-          placeholder="Escribe una respuesta…"
+          placeholder={t("composer.placeholder")}
           value={text}
           rows={1}
           onChange={(e) => {
@@ -119,7 +117,7 @@ export function Composer({
         <button
           onClick={() => void submit()}
           disabled={sending || text.trim().length === 0}
-          aria-label="Enviar"
+          aria-label={t("composer.send")}
           className={cn(
             "flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] bg-brand text-white transition-opacity hover:bg-brand-hover",
             (sending || !text.trim()) && "opacity-40"
@@ -131,7 +129,7 @@ export function Composer({
       <div className="mt-1.5 flex items-center justify-between">
         {error ? <p className="text-xs text-destructive">{error}</p> : <span />}
         <p className="text-[11px] text-text-3">
-          Ventana abierta · quedan {formatRemaining(conversation.windowRemainingMs)}
+          {t("composer.window open")} {formatRemaining(conversation.windowRemainingMs)}
         </p>
       </div>
     </div>

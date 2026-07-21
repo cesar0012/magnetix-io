@@ -11,7 +11,14 @@ import {
 } from "lucide-react";
 import type { MessageDto } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useT, useLocale } from "@/components/language-provider";
+import type { Locale } from "@/lib/i18n/client";
 import { mediaLabel } from "./helpers";
+
+const DATE_LOCALE: Record<Locale, string> = {
+  es: "es-MX",
+  en: "en-US",
+};
 
 function StatusTicks({ status }: { status: MessageDto["status"] }) {
   const cls = "h-[13px] w-[13px]";
@@ -24,17 +31,17 @@ function StatusTicks({ status }: { status: MessageDto["status"] }) {
   return <AlertTriangle className={cn(cls, "text-destructive")} strokeWidth={1.7} />;
 }
 
-function dayLabel(iso: string): string {
+function dayLabel(iso: string, locale: Locale, t: (key: "thread.today" | "thread.yesterday") => string): string {
   const d = new Date(iso);
   const today = new Date();
   const yesterday = new Date(today.getTime() - 86400000);
-  if (d.toDateString() === today.toDateString()) return "Hoy";
-  if (d.toDateString() === yesterday.toDateString()) return "Ayer";
-  return d.toLocaleDateString("es-MX", { day: "numeric", month: "long" });
+  if (d.toDateString() === today.toDateString()) return t("thread.today");
+  if (d.toDateString() === yesterday.toDateString()) return t("thread.yesterday");
+  return d.toLocaleDateString(DATE_LOCALE[locale], { day: "numeric", month: "long" });
 }
 
-function bubbleTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("es-MX", {
+function bubbleTime(iso: string, locale: Locale): string {
+  return new Date(iso).toLocaleTimeString(DATE_LOCALE[locale], {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -43,6 +50,8 @@ function bubbleTime(iso: string): string {
 
 export function MessageThread({ messages }: { messages: MessageDto[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const t = useT();
+  const locale = useLocale();
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -69,7 +78,7 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
             {newDay && (
               <div className="my-3 flex justify-center">
                 <span className="rounded-full border bg-background px-3 py-1 text-[11.5px] font-semibold text-text-2 shadow-sm">
-                  {dayLabel(m.createdAt)}
+                  {dayLabel(m.createdAt, locale, t)}
                 </span>
               </div>
             )}
@@ -96,7 +105,7 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
                 ) : (
                   <span className="inline-flex items-center gap-1.5 text-text-3">
                     <Paperclip className="h-3.5 w-3.5" strokeWidth={1.7} />
-                    {mediaLabel(m.type)}
+                    {mediaLabel(m.type, t)}
                     {m.text ? ` — ${m.text}` : ""}
                   </span>
                 )}
@@ -104,13 +113,13 @@ export function MessageThread({ messages }: { messages: MessageDto[] }) {
                   {m.aiGenerated && (
                     <span
                       className="inline-flex items-center gap-0.5 text-[10px] font-medium text-brand"
-                      title="Respuesta generada por IA"
+                      title={t("thread.ai tooltip")}
                     >
-                      <Sparkles className="h-3 w-3" strokeWidth={1.7} /> IA
+                      <Sparkles className="h-3 w-3" strokeWidth={1.7} /> {t("thread.ai badge")}
                     </span>
                   )}
                   <span className="text-[10.5px] text-text-4">
-                    {bubbleTime(m.createdAt)}
+                    {bubbleTime(m.createdAt, locale)}
                   </span>
                   {out && <StatusTicks status={m.status} />}
                 </span>

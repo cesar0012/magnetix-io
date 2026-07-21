@@ -5,6 +5,7 @@ import type { TemplateDto } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/components/language-provider";
 
 /**
  * Selector de plantilla aprobada para conversaciones con ventana cerrada
@@ -22,6 +23,7 @@ export function TemplateSender({
   const [variable, setVariable] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     let cancelled = false;
@@ -43,17 +45,17 @@ export function TemplateSender({
   }, []);
 
   if (templates === null) {
-    return <p className="text-xs text-muted-foreground">Cargando plantillas…</p>;
+    return <p className="text-xs text-muted-foreground">{t("tpl.loading")}</p>;
   }
 
   if (templates.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Aún no hay plantillas aprobadas. Créalas en{" "}
+        {t("tpl.empty")}{" "}
         <a href="/settings/templates" className="text-primary hover:underline">
-          Configuración → Plantillas
+          {t("tpl.empty link")}
         </a>{" "}
-        y espera la aprobación de Meta.
+        {t("tpl.empty wait")}
       </p>
     );
   }
@@ -81,7 +83,7 @@ export function TemplateSender({
       const data = (await res.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo enviar la plantilla");
+      setError(data?.error?.message ?? t("tpl.send error"));
       return;
     }
     setSelectedId("");
@@ -92,14 +94,14 @@ export function TemplateSender({
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <Label htmlFor="template-select">Plantilla aprobada</Label>
+        <Label htmlFor="template-select">{t("tpl.label")}</Label>
         <select
           id="template-select"
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
           className="flex h-9 w-full rounded-lg border border-slate-700 bg-[#0B0F19] px-3 py-1 text-sm text-slate-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
-          <option value="">Elige una plantilla…</option>
+          <option value="">{t("tpl.choose")}</option>
           {templates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name} ({t.language})
@@ -114,12 +116,12 @@ export function TemplateSender({
       )}
       {needsVariable && (
         <div className="space-y-1.5">
-          <Label htmlFor="template-variable">Valor de la variable {"{{1}}"}</Label>
+          <Label htmlFor="template-variable">{t("tpl.variable")}</Label>
           <Input
             id="template-variable"
             value={variable}
             onChange={(e) => setVariable(e.target.value)}
-            placeholder="p. ej. el nombre del cliente"
+            placeholder={t("tpl.variable placeholder")}
           />
         </div>
       )}
@@ -128,7 +130,7 @@ export function TemplateSender({
         onClick={() => void send()}
         disabled={!selected || sending || (needsVariable && !variable.trim())}
       >
-        {sending ? "Enviando…" : "Enviar plantilla"}
+        {sending ? t("tpl.sending") : t("tpl.send")}
       </Button>
     </div>
   );

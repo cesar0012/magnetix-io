@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { accentCssVariables, DEFAULT_BRANDING } from "@/lib/branding";
 import { getBranding } from "@/server/branding";
+import { getLocale } from "@/lib/i18n";
+import { LanguageProvider } from "@/components/language-provider";
 import "./globals.css";
 
 // next/font descarga la fuente en BUILD y la sirve self-hosted (sin CDN).
@@ -24,16 +26,21 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const branding = await getBranding().catch(() => DEFAULT_BRANDING);
+  const [branding, locale] = await Promise.all([
+    getBranding().catch(() => DEFAULT_BRANDING),
+    getLocale(),
+  ]);
   return (
-    <html lang="es" className={`dark ${inter.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`dark ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Acento white-label inyectado en SSR: sin flash de tema */}
         <style
           dangerouslySetInnerHTML={{ __html: accentCssVariables(branding.accent) }}
         />
       </head>
-      <body className="font-sans min-h-screen">{children}</body>
+      <body className="font-sans min-h-screen">
+        <LanguageProvider locale={locale}>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

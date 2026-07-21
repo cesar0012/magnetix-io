@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/components/language-provider";
 
 export function BrandingClient() {
   const router = useRouter();
+  const t = useT();
   const [name, setName] = useState("");
   const [accent, setAccent] = useState("#3f5972");
   const [loaded, setLoaded] = useState(false);
@@ -48,29 +50,27 @@ export function BrandingClient() {
       const data = (await res?.json().catch(() => null)) as {
         error?: { message?: string };
       } | null;
-      setError(data?.error?.message ?? "No se pudo guardar");
+      setError(data?.error?.message ?? t("branding.save error"));
       return;
     }
     setSaved(true);
-    // Re-renderiza el árbol server (layout raíz inyecta el acento y el título)
     router.refresh();
   }
 
-  if (!loaded) return <p className="text-sm text-text-3">Cargando…</p>;
+  if (!loaded) return <p className="text-sm text-text-3">{t("common.loading")}</p>;
 
   return (
     <div className="max-w-2xl space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Marca del CRM</CardTitle>
+          <CardTitle>{t("branding.title")}</CardTitle>
           <CardDescription>
-            Este CRM es tuyo: ponle el nombre de tu negocio y tu color. Se
-            reflejan en toda la interfaz y en la pantalla de inicio de sesión.
+            {t("branding.desc")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-1.5">
-            <Label htmlFor="brand-name">Nombre</Label>
+            <Label htmlFor="brand-name">{t("branding.name")}</Label>
             <Input
               id="brand-name"
               maxLength={30}
@@ -82,7 +82,7 @@ export function BrandingClient() {
           </div>
 
           <div className="space-y-2">
-            <Label>Color de acento</Label>
+            <Label>{t("branding.accent")}</Label>
             <div className="flex flex-wrap items-center gap-2">
               {Object.entries(ACCENT_PRESETS).map(([hex, preset]) => (
                 <button
@@ -116,16 +116,14 @@ export function BrandingClient() {
                   onChange={(e) => setAccent(e.target.value)}
                   className="h-4 w-4 cursor-pointer appearance-none border-0 bg-transparent p-0"
                 />
-                Personalizado
+                {t("branding.custom")}
               </label>
             </div>
             <p className="text-xs text-text-3">
-              Con un color personalizado, los tonos derivados (hover, fondos
-              suaves) se calculan solos y se ajusta el contraste.
+              {t("branding.custom desc")}
             </p>
           </div>
 
-          {/* Vista previa */}
           <div className="rounded-md border p-4" style={{ background: previewSet.tint }}>
             <div className="flex items-center gap-2.5">
               <span
@@ -145,15 +143,15 @@ export function BrandingClient() {
                 className="rounded-md px-3 py-1.5 text-xs font-medium text-white"
                 style={{ background: previewSet.accent }}
               >
-                Botón de ejemplo
+                {t("branding.sample button")}
               </span>
             </div>
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
-          {saved && <p className="text-sm" style={{ color: previewSet.text }}>Marca guardada ✓</p>}
+          {saved && <p className="text-sm" style={{ color: previewSet.text }}>{t("branding.saved")}</p>}
           <Button disabled={saving || !name.trim()} onClick={() => void save()}>
-            {saving ? "Guardando…" : "Guardar marca"}
+            {saving ? t("common.saving") : t("branding.save")}
           </Button>
         </CardContent>
       </Card>

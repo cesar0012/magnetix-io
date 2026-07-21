@@ -1,10 +1,14 @@
 import { DEFAULT_BRANDING } from "@/lib/branding";
 import { getBranding } from "@/server/branding";
+import { getLocale, t } from "@/lib/i18n";
 
 export default async function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const branding = await getBranding().catch(() => DEFAULT_BRANDING);
+  const [branding, locale] = await Promise.all([
+    getBranding().catch(() => DEFAULT_BRANDING),
+    getLocale(),
+  ]);
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#0B0F19] p-4">
       <div className="w-full max-w-sm">
@@ -14,7 +18,7 @@ export default async function AuthLayout({
           </span>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{branding.name}</h1>
-            <p className="text-sm text-text-3">CRM de WhatsApp con agente de IA</p>
+            <p className="text-sm text-text-3">{t(locale, "auth.subtitle")}</p>
           </div>
         </div>
         {children}
