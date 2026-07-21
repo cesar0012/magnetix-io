@@ -143,15 +143,15 @@ export function StageManager({
         </ul>
 
         {deleting && (
-          <div className="mt-4 rounded-md border border-[#ece2cf] bg-[#faf7f0] p-3">
-            <p className="text-sm text-[#8a6d3b]">
+          <div className="mt-4 rounded-md border border-amber-700/30 bg-amber-950/20 p-3">
+            <p className="text-sm text-amber-300">
               &quot;{deleting.name}&quot; tiene tarjetas. Elige a dónde moverlas:
             </p>
             <div className="mt-2 flex gap-2">
               <select
                 value={moveTo}
                 onChange={(e) => setMoveTo(e.target.value)}
-                className="h-9 flex-1 rounded-md border border-input bg-card px-3 text-sm"
+                className="h-9 flex-1 rounded-lg border border-slate-700 bg-[#0B0F19] px-3 text-sm text-slate-200"
               >
                 <option value="">Etapa destino…</option>
                 {sorted

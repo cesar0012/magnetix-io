@@ -97,7 +97,7 @@ export function TemplateSender({
           id="template-select"
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
-          className="flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex h-9 w-full rounded-lg border border-slate-700 bg-[#0B0F19] px-3 py-1 text-sm text-slate-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
         >
           <option value="">Elige una plantilla…</option>
           {templates.map((t) => (

@@ -164,7 +164,7 @@ function CreateForm({ onCreated }: { onCreated: () => void }) {
               id="tpl-lang"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="flex h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
+              className="flex h-9 w-full rounded-lg border border-slate-700 bg-[#0B0F19] px-3 text-sm text-slate-200"
             >
               <option value="es_MX">es_MX</option>
               <option value="es">es</option>
@@ -180,7 +180,7 @@ function CreateForm({ onCreated }: { onCreated: () => void }) {
               onChange={(e) =>
                 setCategory(e.target.value as "UTILITY" | "MARKETING")
               }
-              className="flex h-9 w-full rounded-md border border-input bg-card px-3 text-sm"
+              className="flex h-9 w-full rounded-lg border border-slate-700 bg-[#0B0F19] px-3 text-sm text-slate-200"
             >
               <option value="UTILITY">UTILITY (seguimiento)</option>
               <option value="MARKETING">MARKETING</option>

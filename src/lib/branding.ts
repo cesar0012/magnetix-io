@@ -1,7 +1,7 @@
 /**
  * White-label: nombre del CRM + acento por organización.
- * Presets sobrios del sistema Atlas; para un color personalizado se derivan
- * hover/soft/tint/text y se garantiza contraste con texto blanco.
+ * Presets del sistema Magnetix (tema oscuro): soft/tint se derivan con
+ * opacidad sobre superficies oscuras; text es una versión clara del acento.
  */
 
 export type AccentSet = {
@@ -19,23 +19,23 @@ export type Branding = {
 
 export const DEFAULT_BRANDING: Branding = { name: "Magnetix IO", accent: "#3f5972" };
 
-/** Presets del handoff (valores exactos). */
+/** Presets del handoff (valores exactos, derivados para tema oscuro). */
 export const ACCENT_PRESETS: Record<string, { label: string; set: AccentSet }> = {
   "#3f5972": {
     label: "Azul acero",
-    set: { accent: "#3f5972", hover: "#334a60", soft: "#dde5ee", tint: "#f3f6f9", text: "#2b4056" },
+    set: { accent: "#3f5972", hover: "#4a6884", soft: "rgba(63, 89, 114, 0.15)", tint: "rgba(63, 89, 114, 0.08)", text: "#7da3c9" },
   },
   "#4b5563": {
     label: "Grafito",
-    set: { accent: "#4b5563", hover: "#3b4350", soft: "#e2e5ea", tint: "#f4f5f7", text: "#333a45" },
+    set: { accent: "#4b5563", hover: "#5e6a78", soft: "rgba(75, 85, 99, 0.15)", tint: "rgba(75, 85, 99, 0.08)", text: "#9ca6b4" },
   },
   "#3f6b66": {
     label: "Verde apagado",
-    set: { accent: "#3f6b66", hover: "#335752", soft: "#dcebe8", tint: "#f2f8f6", text: "#2b4a46" },
+    set: { accent: "#3f6b66", hover: "#4d8580", soft: "rgba(63, 107, 102, 0.15)", tint: "rgba(63, 107, 102, 0.08)", text: "#7db0a9" },
   },
   "#5f5470": {
     label: "Ciruela",
-    set: { accent: "#5f5470", hover: "#4d4459", soft: "#e6e1ec", tint: "#f6f4f8", text: "#443c52" },
+    set: { accent: "#5f5470", hover: "#736880", soft: "rgba(95, 84, 112, 0.15)", tint: "rgba(95, 84, 112, 0.08)", text: "#a89bb8" },
   },
 };
 
@@ -83,7 +83,8 @@ function luminance({ r, g, b }: Rgb): number {
 /**
  * Set completo para cualquier acento: preset exacto si existe; si no, se
  * deriva. Un base demasiado claro (texto blanco ilegible encima) se oscurece
- * hasta contraste ≥ 3:1 con blanco.
+ * hasta contraste ≥ 3:1 con blanco. En tema oscuro, hover va más claro y
+ * soft/tint usan opacidad sobre la superficie oscura.
  */
 export function resolveAccentSet(accentHex: string): AccentSet {
   const preset = ACCENT_PRESETS[accentHex.toLowerCase()];
@@ -95,12 +96,13 @@ export function resolveAccentSet(accentHex: string): AccentSet {
   while (1.05 / (luminance(base) + 0.05) < 3 && luminance(base) > 0.005) {
     base = mix(base, BLACK, 0.12);
   }
+  const { r, g, b } = base;
   return {
     accent: rgbToHex(base),
-    hover: rgbToHex(mix(base, BLACK, 0.16)),
-    soft: rgbToHex(mix(base, WHITE, 0.82)),
-    tint: rgbToHex(mix(base, WHITE, 0.94)),
-    text: rgbToHex(mix(base, BLACK, 0.28)),
+    hover: rgbToHex(mix(base, WHITE, 0.15)),
+    soft: `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.15)`,
+    tint: `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, 0.08)`,
+    text: rgbToHex(mix(base, WHITE, 0.45)),
   };
 }
 

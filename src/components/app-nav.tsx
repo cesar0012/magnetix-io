@@ -57,7 +57,7 @@ export function AppNav({
   });
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col border-r bg-subtle px-3 pb-3.5 pt-4">
+    <aside className="flex w-56 shrink-0 flex-col border-r border-slate-800 bg-subtle px-3 pb-3.5 pt-4">
       {/* Brand white-label */}
       <div className="mb-4 flex items-center gap-2.5 px-2">
         <span
@@ -83,7 +83,7 @@ export function AppNav({
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-[11px] rounded-sm px-2.5 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-[11px] rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
                 active
                   ? "bg-brand-tint font-semibold text-brand-text"
                   : "text-text-2 hover:bg-accent"
@@ -114,7 +114,7 @@ export function AppNav({
       <Link
         href="/settings"
         className={cn(
-          "flex items-center gap-[11px] rounded-sm px-2.5 py-2 text-sm font-medium transition-colors",
+          "flex items-center gap-[11px] rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
           pathname.startsWith("/settings")
             ? "bg-brand-tint font-semibold text-brand-text"
             : "text-text-2 hover:bg-accent"
@@ -130,7 +130,7 @@ export function AppNav({
         Ajustes
       </Link>
 
-      <div className="mt-1 flex items-center gap-2.5 rounded-sm px-2.5 py-2 hover:bg-accent">
+      <div className="mt-1 flex items-center gap-2.5 rounded-lg px-2.5 py-2 hover:bg-accent">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand-text">
           {initials(userName)}
         </span>
@@ -141,6 +141,7 @@ export function AppNav({
           </span>
         </span>
         <button
+          type="button"
           aria-label="Cerrar sesión"
           title="Cerrar sesión"
           className="rounded p-1 text-text-3 hover:text-foreground"

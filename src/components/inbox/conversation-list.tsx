@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { formatTime, previewText } from "./helpers";
 
 const STAGE_DOT: Record<string, string> = {
-  Nuevo: "#9ca3af",
-  "En conversación": "#7b93b3",
-  Interesado: "#b08b5e",
-  Cliente: "#5f8f74",
-  Perdido: "#a2504c",
+  Nuevo: "#b0b7c0",
+  "En conversación": "#8da8c8",
+  Interesado: "#c9a574",
+  Cliente: "#74a88a",
+  Perdido: "#c06864",
 };
 
 function EmptyState({ onSeeded }: { onSeeded: () => void }) {
@@ -201,14 +201,14 @@ export function ConversationList({
                             <span
                               className="h-[7px] w-[7px] rounded-full"
                               style={{
-                                background: STAGE_DOT[c.stageName] ?? "#9ca3af",
+                                background: STAGE_DOT[c.stageName] ?? "#b0b7c0",
                               }}
                             />
                             {c.stageName}
                           </span>
                         )}
                         {c.handoffAt && (
-                          <span className="inline-flex items-center gap-1 rounded-full border border-[#ece2cf] bg-[#faf7f0] px-2 py-0.5 text-[11px] text-[#8a6d3b]">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-700/30 bg-amber-950/20 px-2 py-0.5 text-[11px] text-amber-300">
                             <UserRound className="h-3 w-3" strokeWidth={1.7} />
                             Atención humana
                           </span>

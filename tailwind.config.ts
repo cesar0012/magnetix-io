@@ -3,7 +3,7 @@ import animate from "tailwindcss-animate";
 
 /**
  * Los nombres semánticos existentes (background, primary, muted…) se remapean
- * a los tokens del sistema Atlas para que toda la app comparta el tema claro;
+ * a los tokens del sistema Magnetix para que toda la app comparta el tema oscuro;
  * la escala `brand-*` expone el acento white-label.
  */
 const config: Config = {
@@ -39,11 +39,11 @@ const config: Config = {
           foreground: "var(--text)",
         },
         card: {
-          DEFAULT: "var(--bg)",
+          DEFAULT: "var(--bg-card)",
           foreground: "var(--text)",
         },
         popover: {
-          DEFAULT: "var(--bg)",
+          DEFAULT: "var(--bg-modal)",
           foreground: "var(--text)",
         },
         brand: {
@@ -73,7 +73,7 @@ const config: Config = {
         pop: "var(--shadow-pop)",
       },
       fontFamily: {
-        sans: ["var(--font-geist)", "Hanken Grotesk", "-apple-system", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "-apple-system", "sans-serif"],
       },
     },
   },

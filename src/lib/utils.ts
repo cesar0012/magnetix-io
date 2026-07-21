@@ -14,16 +14,16 @@ export function initials(name: string): string {
   return (first + second).toUpperCase() || "?";
 }
 
-/* Paleta desaturada del handoff (AV): sobria sobre fondo claro. */
+/* Paleta desaturada (AV): sobria pero con suficiente luminosidad sobre fondo oscuro. */
 const AVATAR_COLORS = [
-  "bg-[#5b7291]", // steel
-  "bg-[#647082]", // slate
-  "bg-[#6f8378]", // sage
-  "bg-[#8c7d68]", // taupe
-  "bg-[#9c7169]", // clay
-  "bg-[#77708c]", // dusk
-  "bg-[#4f7d78]", // tealm
-  "bg-[#6b7280]", // graphite
+  "bg-[#6b8aa8]", // steel
+  "bg-[#74849a]", // slate
+  "bg-[#7fa08d]", // sage
+  "bg-[#a89478]", // taupe
+  "bg-[#b88a80]", // clay
+  "bg-[#8a82a0]", // dusk
+  "bg-[#5fa09a]", // teal
+  "bg-[#7b8595]", // graphite
 ] as const;
 
 /** Color estable por contacto: hash simple del id/teléfono → misma clase siempre. */

@@ -61,7 +61,7 @@ export function Composer({
   if (!conversation.windowOpen) {
     return (
       <div className="border-t bg-background px-[18px] py-3.5">
-        <div className="mb-3 flex items-start gap-2 rounded-md border border-[#ece2cf] bg-[#faf7f0] p-3 text-sm text-[#8a6d3b]">
+        <div className="mb-3 flex items-start gap-2 rounded-md border border-amber-700/30 bg-amber-950/20 p-3 text-sm text-amber-300">
           <Clock3 className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.7} />
           <div>
             <p className="font-medium">La ventana de 24 horas está cerrada.</p>

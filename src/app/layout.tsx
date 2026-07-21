@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import { accentCssVariables, DEFAULT_BRANDING } from "@/lib/branding";
 import { getBranding } from "@/server/branding";
 import "./globals.css";
 
 // next/font descarga la fuente en BUILD y la sirve self-hosted (sin CDN).
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geist",
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -26,14 +26,14 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const branding = await getBranding().catch(() => DEFAULT_BRANDING);
   return (
-    <html lang="es" className={geist.variable}>
+    <html lang="es" className={`dark ${inter.variable}`} suppressHydrationWarning>
       <head>
         {/* Acento white-label inyectado en SSR: sin flash de tema */}
         <style
           dangerouslySetInnerHTML={{ __html: accentCssVariables(branding.accent) }}
         />
       </head>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans min-h-screen">{children}</body>
     </html>
   );
 }
