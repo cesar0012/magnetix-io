@@ -15,6 +15,8 @@ RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS=--max-old-space-size=4096
+RUN fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile || true
 RUN pnpm build
 # migrate.mjs autocontenido (drizzle-orm + postgres bundleados)
 RUN pnpm exec esbuild scripts/migrate.mjs --bundle --platform=node \
