@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Check, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LOCALES } from "@/lib/i18n/client";
@@ -15,7 +14,6 @@ const LABELS: Record<string, string> = {
 export function LanguageSelector({ dropUp = true }: { dropUp?: boolean }) {
   const t = useT();
   const locale = useLocale();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -24,16 +22,21 @@ export function LanguageSelector({ dropUp = true }: { dropUp?: boolean }) {
     if (next === locale || saving) return;
     setSaving(true);
     try {
-      await fetch("/api/settings/locale", {
+      const res = await fetch("/api/settings/locale", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ locale: next }),
       });
+      if (!res.ok) {
+        setSaving(false);
+        return;
+      }
     } catch {
-      // ignore — cookie may still be set
+      setSaving(false);
+      return;
     }
     setSaving(false);
-    router.refresh();
+    window.location.reload();
   }
 
   return (
@@ -58,7 +61,7 @@ export function LanguageSelector({ dropUp = true }: { dropUp?: boolean }) {
           />
           <div
             className={cn(
-              "absolute left-0 z-50 w-36 rounded-lg border border-slate-800 bg-popover p-1 shadow-lg",
+              "absolute right-0 z-50 w-36 rounded-lg border border-slate-800 bg-popover p-1 shadow-lg",
               dropUp ? "bottom-full mb-1" : "top-full mt-1"
             )}
           >
