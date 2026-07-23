@@ -17,14 +17,14 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const migrationsFolder =
   process.env.MIGRATIONS_DIR ?? path.join(here, "drizzle");
 
-function ensureDir(p: string) {
+function ensureDir(p) {
   const dir = path.dirname(p);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
 const maxAttempts = 15;
 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-  let sqlite: Database.Database | null = null;
+  let sqlite = null;
   try {
     ensureDir(filePath);
     sqlite = new Database(filePath);
