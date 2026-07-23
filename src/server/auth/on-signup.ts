@@ -17,8 +17,7 @@ const SEED_STAGES: { name: string; kind: "open" | "won" | "lost" }[] = [
  *
  * Solo actúa si NO existe ninguna organización (las cuentas de equipo las crea
  * el propietario y reciben su membresía explícita). SQLite serializa escrituras
- * naturalmente (transacción BEGIN IMMEDIATE en better-sqlite3), por lo que no
- * hace falta un advisory lock como en PostgreSQL.
+ * naturalmente; con libSQL (async) las transacciones soportan Promises.
  */
 export async function onUserCreated(userId: string, userName: string) {
   const db = getDb();

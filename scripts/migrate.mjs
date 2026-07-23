@@ -3,9 +3,9 @@
  * plataformas como Coolify corre en el contenedor viejo). Se bundlea con
  * esbuild dentro de la imagen y corre antes de `node server.js`.
  */
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
-import Database from "better-sqlite3";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
+import { migrate } from "drizzle-orm/libsql/migrator";
 import { mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,20 +24,17 @@ function ensureDir(p) {
 
 const maxAttempts = 15;
 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-  let sqlite = null;
+  let client = null;
   try {
     ensureDir(filePath);
-    sqlite = new Database(filePath);
-    sqlite.pragma("journal_mode = WAL");
-    sqlite.pragma("foreign_keys = ON");
-    sqlite.pragma("busy_timeout = 5000");
-    const db = drizzle(sqlite);
-    migrate(db, { migrationsFolder });
+    client = createClient({ url });
+    const db = drizzle(client);
+    await migrate(db, { migrationsFolder });
     console.log("[migrate] migraciones aplicadas");
-    sqlite.close();
+    client.close();
     process.exit(0);
   } catch (err) {
-    if (sqlite) sqlite.close();
+    if (client) client.close();
     if (attempt === maxAttempts) {
       console.error("[migrate] falló tras varios intentos:", err);
       process.exit(1);

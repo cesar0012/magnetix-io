@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    getSql().prepare("select 1").get();
+    await getSql().execute("select 1");
     return Response.json({ ok: true });
   } catch {
     return Response.json(
