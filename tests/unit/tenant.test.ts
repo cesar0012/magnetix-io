@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { PgDialect } from "drizzle-orm/pg-core";
+import { SQLiteSyncDialect } from "drizzle-orm/sqlite-core";
 import { scoped } from "@/lib/db/tenant";
 import { schema } from "@/lib/db";
 
@@ -31,7 +31,7 @@ describe("scoped (aislamiento por organización)", () => {
     );
     expect(condition).toBeDefined();
     // el SQL generado contiene ambas columnas unidas por AND
-    const query = new PgDialect().sqlToQuery(condition);
+    const query = new SQLiteSyncDialect().sqlToQuery(condition);
     expect(query.sql).toContain("organization_id");
     expect(query.sql).toContain("phone");
     expect(query.sql.toLowerCase()).toContain("and");

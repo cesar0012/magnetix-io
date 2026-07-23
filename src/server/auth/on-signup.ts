@@ -1,4 +1,4 @@
-import { count, eq, sql } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { newId } from "@/lib/db/ids";
 
@@ -16,15 +16,13 @@ const SEED_STAGES: { name: string; kind: "open" | "won" | "lost" }[] = [
  * propietario y siembra pipeline + perfil del agente.
  *
  * Solo actúa si NO existe ninguna organización (las cuentas de equipo las crea
- * el propietario y reciben su membresía explícita). Un advisory lock evita que
- * dos registros simultáneos en instancia vacía creen dos organizaciones.
+ * el propietario y reciben su membresía explícita). SQLite serializa escrituras
+ * naturalmente (transacción BEGIN IMMEDIATE en better-sqlite3), por lo que no
+ * hace falta un advisory lock como en PostgreSQL.
  */
 export async function onUserCreated(userId: string, userName: string) {
   const db = getDb();
   await db.transaction(async (tx) => {
-    // Lock transaccional de "primer arranque" (clave arbitraria fija):
-    // dos registros simultáneos en instancia vacía → solo uno crea la org.
-    await tx.execute(sql`select pg_advisory_xact_lock(874201)`);
     const [orgs] = await tx
       .select({ n: count() })
       .from(schema.organization);

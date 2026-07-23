@@ -1,5 +1,5 @@
 import { and, eq, type SQL } from "drizzle-orm";
-import type { PgColumn } from "drizzle-orm/pg-core";
+import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
 
 /**
  * Scope de tenant obligatorio (Constitución III).
@@ -9,7 +9,7 @@ import type { PgColumn } from "drizzle-orm/pg-core";
  * de modo que un WHERE sin tenant no compile de forma natural.
  */
 export function scoped(
-  organizationColumn: PgColumn,
+  organizationColumn: SQLiteColumn,
   organizationId: string,
   ...conditions: (SQL | undefined)[]
 ): SQL {

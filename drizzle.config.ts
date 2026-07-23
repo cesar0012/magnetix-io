@@ -19,8 +19,8 @@ function loadDatabaseUrl(): string {
 export default defineConfig({
   schema: "./src/lib/db/schema.ts",
   out: "./drizzle",
-  dialect: "postgresql",
+  dialect: "sqlite",
   dbCredentials: {
-    url: loadDatabaseUrl(),
+    url: loadDatabaseUrl() || "file:./data/db.sqlite",
   },
 });

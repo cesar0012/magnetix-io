@@ -1,4 +1,4 @@
-import { desc, ilike, or } from "drizzle-orm";
+import { desc, like, or } from "drizzle-orm";
 import { z } from "zod";
 import { apiError, parseBody, withAuth } from "@/lib/api";
 import { getDb, schema } from "@/lib/db";
@@ -23,8 +23,8 @@ export const GET = withAuth(async (session, req: Request) => {
         session.organizationId,
         q
           ? or(
-              ilike(schema.contact.name, `%${q}%`),
-              ilike(schema.contact.phone, `%${q}%`)
+              like(schema.contact.name, `%${q}%`),
+              like(schema.contact.phone, `%${q}%`)
             )
           : undefined
       )

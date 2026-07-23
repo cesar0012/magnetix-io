@@ -1,35 +1,42 @@
 import {
-  boolean,
   index,
   integer,
-  jsonb,
-  pgTable,
+  sqliteTable,
   text,
-  timestamp,
   uniqueIndex,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 /* ============================================================
  * Auth (Better Auth + plugin organization)
  * ============================================================ */
 
-export const user = pgTable("user", {
+export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: boolean("email_verified").notNull().default(false),
+  emailVerified: integer("email_verified", { mode: "boolean" })
+    .notNull()
+    .default(false),
   image: text("image"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
 });
 
-export const session = pgTable("session", {
+export const session = sqliteTable("session", {
   id: text("id").primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
   token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
@@ -38,7 +45,7 @@ export const session = pgTable("session", {
   activeOrganizationId: text("active_organization_id"),
 });
 
-export const account = pgTable("account", {
+export const account = sqliteTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
@@ -48,33 +55,47 @@ export const account = pgTable("account", {
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at"),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  accessTokenExpiresAt: integer("access_token_expires_at", {
+    mode: "timestamp",
+  }),
+  refreshTokenExpiresAt: integer("refresh_token_expires_at", {
+    mode: "timestamp",
+  }),
   scope: text("scope"),
   password: text("password"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
 });
 
-export const verification = pgTable("verification", {
+export const verification = sqliteTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
 });
 
-export const organization = pgTable("organization", {
+export const organization = sqliteTable("organization", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique(),
   logo: text("logo"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
   metadata: text("metadata"),
 });
 
-export const member = pgTable("member", {
+export const member = sqliteTable("member", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id")
     .notNull()
@@ -83,10 +104,12 @@ export const member = pgTable("member", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   role: text("role").notNull().default("member"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .defaultNow(),
 });
 
-export const invitation = pgTable("invitation", {
+export const invitation = sqliteTable("invitation", {
   id: text("id").primaryKey(),
   organizationId: text("organization_id")
     .notNull()
@@ -94,7 +117,7 @@ export const invitation = pgTable("invitation", {
   email: text("email").notNull(),
   role: text("role"),
   status: text("status").notNull().default("pending"),
-  expiresAt: timestamp("expires_at").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
   inviterId: text("inviter_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -104,7 +127,7 @@ export const invitation = pgTable("invitation", {
  * Dominio (toda tabla lleva organization_id NOT NULL + índice org-first)
  * ============================================================ */
 
-export const contact = pgTable(
+export const contact = sqliteTable(
   "contact",
   {
     id: text("id").primaryKey(),
@@ -114,9 +137,13 @@ export const contact = pgTable(
     phone: text("phone").notNull(),
     name: text("name").notNull(),
     notes: text("notes"),
-    archivedAt: timestamp("archived_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    archivedAt: integer("archived_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex("contact_org_phone_uq").on(t.organizationId, t.phone),
@@ -124,7 +151,7 @@ export const contact = pgTable(
   ]
 );
 
-export const pipelineStage = pgTable(
+export const pipelineStage = sqliteTable(
   "pipeline_stage",
   {
     id: text("id").primaryKey(),
@@ -137,12 +164,14 @@ export const pipelineStage = pgTable(
     kind: text("kind", { enum: ["open", "won", "lost"] })
       .notNull()
       .default("open"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("stage_org_pos_idx").on(t.organizationId, t.position)]
 );
 
-export const lead = pgTable(
+export const lead = sqliteTable(
   "lead",
   {
     id: text("id").primaryKey(),
@@ -156,9 +185,13 @@ export const lead = pgTable(
       .notNull()
       .references(() => pipelineStage.id),
     position: integer("position").notNull().default(0),
-    lastActivityAt: timestamp("last_activity_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    lastActivityAt: integer("last_activity_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex("lead_contact_uq").on(t.contactId),
@@ -166,7 +199,7 @@ export const lead = pgTable(
   ]
 );
 
-export const conversation = pgTable(
+export const conversation = sqliteTable(
   "conversation",
   {
     id: text("id").primaryKey(),
@@ -177,17 +210,23 @@ export const conversation = pgTable(
       .notNull()
       .references(() => contact.id, { onDelete: "cascade" }),
     /** Conversación del Laboratorio: jamás toca la API de WhatsApp. */
-    isTest: boolean("is_test").notNull().default(false),
-    aiEnabled: boolean("ai_enabled").notNull().default(true),
-    handoffAt: timestamp("handoff_at"),
+    isTest: integer("is_test", { mode: "boolean" }).notNull().default(false),
+    aiEnabled: integer("ai_enabled", { mode: "boolean" })
+      .notNull()
+      .default(true),
+    handoffAt: integer("handoff_at", { mode: "timestamp" }),
     handoffReason: text("handoff_reason", {
       enum: ["cliente", "modelo", "error", "ventana"],
     }),
-    lastInboundAt: timestamp("last_inbound_at"),
-    lastMessageAt: timestamp("last_message_at"),
+    lastInboundAt: integer("last_inbound_at", { mode: "timestamp" }),
+    lastMessageAt: integer("last_message_at", { mode: "timestamp" }),
     unreadCount: integer("unread_count").notNull().default(0),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     // Una conversación real por contacto; las de prueba no compiten.
@@ -198,7 +237,7 @@ export const conversation = pgTable(
   ]
 );
 
-export const message = pgTable(
+export const message = sqliteTable(
   "message",
   {
     id: text("id").primaryKey(),
@@ -219,9 +258,13 @@ export const message = pgTable(
       .notNull()
       .default("pending"),
     error: text("error"),
-    aiGenerated: boolean("ai_generated").notNull().default(false),
-    waTimestamp: timestamp("wa_timestamp"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    aiGenerated: integer("ai_generated", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    waTimestamp: integer("wa_timestamp", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index("message_org_conv_idx").on(
@@ -232,7 +275,7 @@ export const message = pgTable(
   ]
 );
 
-export const metaCredentials = pgTable(
+export const metaCredentials = sqliteTable(
   "meta_credentials",
   {
     id: text("id").primaryKey(),
@@ -249,8 +292,12 @@ export const metaCredentials = pgTable(
     status: text("status", { enum: ["connected", "reconnect_required"] })
       .notNull()
       .default("connected"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex("meta_credentials_org_uq").on(t.organizationId),
@@ -259,26 +306,30 @@ export const metaCredentials = pgTable(
   ]
 );
 
-export const agentProfile = pgTable(
+export const agentProfile = sqliteTable(
   "agent_profile",
   {
     id: text("id").primaryKey(),
     organizationId: text("organization_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    enabled: boolean("enabled").notNull().default(false),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(false),
     name: text("name").notNull().default("Asistente"),
     tone: text("tone"),
     instructions: text("instructions"),
     escalationRules: text("escalation_rules"),
     greeting: text("greeting"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [uniqueIndex("agent_profile_org_uq").on(t.organizationId)]
 );
 
-export const kbEntry = pgTable(
+export const kbEntry = sqliteTable(
   "kb_entry",
   {
     id: text("id").primaryKey(),
@@ -289,13 +340,17 @@ export const kbEntry = pgTable(
     question: text("question"),
     answer: text("answer"),
     content: text("content"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("kb_org_idx").on(t.organizationId)]
 );
 
-export const template = pgTable(
+export const template = sqliteTable(
   "template",
   {
     id: text("id").primaryKey(),
@@ -313,8 +368,12 @@ export const template = pgTable(
       .default("draft"),
     rejectionReason: text("rejection_reason"),
     waTemplateId: text("wa_template_id"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     uniqueIndex("template_org_name_lang_uq").on(
@@ -325,7 +384,7 @@ export const template = pgTable(
   ]
 );
 
-export const agentTestRun = pgTable(
+export const agentTestRun = sqliteTable(
   "agent_test_run",
   {
     id: text("id").primaryKey(),
@@ -337,8 +396,10 @@ export const agentTestRun = pgTable(
       .default("running"),
     score: integer("score"),
     error: text("error"),
-    startedAt: timestamp("started_at").notNull().defaultNow(),
-    finishedAt: timestamp("finished_at"),
+    startedAt: integer("started_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
+    finishedAt: integer("finished_at", { mode: "timestamp" }),
   },
   (t) => [
     // Lock de concurrencia en BD: máximo 1 corrida activa por organización.
@@ -349,7 +410,7 @@ export const agentTestRun = pgTable(
   ]
 );
 
-export const agentTestCase = pgTable(
+export const agentTestCase = sqliteTable(
   "agent_test_case",
   {
     id: text("id").primaryKey(),
@@ -363,15 +424,17 @@ export const agentTestCase = pgTable(
     conversationId: text("conversation_id").references(() => conversation.id, {
       onDelete: "set null",
     }),
-    transcript: jsonb("transcript"),
+    transcript: text("transcript", { mode: "json" }),
     veredicto: text("veredicto", { enum: ["verde", "amarillo", "rojo"] }),
-    hallazgos: jsonb("hallazgos"),
+    hallazgos: text("hallazgos", { mode: "json" }),
     status: text("status", {
       enum: ["pending", "running", "done", "judge_failed"],
     })
       .notNull()
       .default("pending"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [index("test_case_run_idx").on(t.runId)]
 );

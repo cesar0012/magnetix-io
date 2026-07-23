@@ -1,34 +1,49 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import Database from "better-sqlite3";
+import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { getEnv } from "@/lib/env";
 import * as schema from "./schema";
 
 /**
  * Cliente de BD único por proceso. En dev, Next recarga módulos: se cachea en
- * globalThis para no agotar conexiones.
+ * globalThis para no reabrir el archivo SQLite (y para no violar el singleton
+ * de better-sqlite3 sobre el mismo handle).
  */
+type SqliteClient = Database.Database;
+
 const globalForDb = globalThis as unknown as {
-  __voceroSql?: ReturnType<typeof postgres>;
+  __voceroSqlite?: SqliteClient;
 };
 
-function createClient() {
+function resolveFilePath(url: string): string {
+  return url.replace(/^file:/, "");
+}
+
+function createClient(): SqliteClient {
   const env = getEnv();
-  return postgres(env.DATABASE_URL, {
-    max: 10,
-    onnotice: () => {},
-  });
+  const filePath = resolveFilePath(env.DATABASE_URL);
+  const sqlite = new Database(filePath);
+  sqlite.pragma("journal_mode = WAL");
+  sqlite.pragma("foreign_keys = ON");
+  sqlite.pragma("busy_timeout = 5000");
+  return sqlite;
+}
+
+function getSqlite(): SqliteClient {
+  if (!globalForDb.__voceroSqlite) {
+    globalForDb.__voceroSqlite = createClient();
+  }
+  return globalForDb.__voceroSqlite;
+}
+
+let cachedDb: BetterSQLite3Database<typeof schema> | null = null;
+
+export function getDb() {
+  if (!cachedDb) cachedDb = drizzle(getSqlite(), { schema });
+  return cachedDb;
 }
 
 export function getSql() {
-  if (!globalForDb.__voceroSql) globalForDb.__voceroSql = createClient();
-  return globalForDb.__voceroSql;
-}
-
-let cachedDb: ReturnType<typeof drizzle<typeof schema>> | null = null;
-
-export function getDb() {
-  if (!cachedDb) cachedDb = drizzle(getSql(), { schema });
-  return cachedDb;
+  return getSqlite();
 }
 
 export { schema };

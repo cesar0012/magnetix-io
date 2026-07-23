@@ -3,32 +3,41 @@
  * plataformas como Coolify corre en el contenedor viejo). Se bundlea con
  * esbuild dentro de la imagen y corre antes de `node server.js`.
  */
-import { drizzle } from "drizzle-orm/postgres-js";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import Database from "better-sqlite3";
+import { mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const url = process.env.DATABASE_URL;
-if (!url) {
-  console.error("[migrate] DATABASE_URL no está definida");
-  process.exit(1);
-}
+const url = process.env.DATABASE_URL || "file:./data/db.sqlite";
+const filePath = url.replace(/^file:/, "");
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const migrationsFolder =
   process.env.MIGRATIONS_DIR ?? path.join(here, "drizzle");
 
+function ensureDir(p: string) {
+  const dir = path.dirname(p);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+}
+
 const maxAttempts = 15;
 for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-  const sql = postgres(url, { max: 1, onnotice: () => {} });
+  let sqlite: Database.Database | null = null;
   try {
-    await migrate(drizzle(sql), { migrationsFolder });
+    ensureDir(filePath);
+    sqlite = new Database(filePath);
+    sqlite.pragma("journal_mode = WAL");
+    sqlite.pragma("foreign_keys = ON");
+    sqlite.pragma("busy_timeout = 5000");
+    const db = drizzle(sqlite);
+    migrate(db, { migrationsFolder });
     console.log("[migrate] migraciones aplicadas");
-    await sql.end();
+    sqlite.close();
     process.exit(0);
   } catch (err) {
-    await sql.end().catch(() => {});
+    if (sqlite) sqlite.close();
     if (attempt === maxAttempts) {
       console.error("[migrate] falló tras varios intentos:", err);
       process.exit(1);
