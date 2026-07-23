@@ -15,8 +15,9 @@ RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_OPTIONS=--max-old-space-size=4096
-RUN fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile || true
+# Coolify no permite swapon (sin CAP_SYS_ADMIN): no creamos swap aquí.
+# Heap ajustado a 2048MB para quedarse dentro de la RAM física del builder.
+ENV NODE_OPTIONS=--max-old-space-size=2048
 RUN pnpm build
 # migrate.mjs autocontenido (drizzle-orm + @libsql/client bundleados)
 RUN pnpm exec esbuild scripts/migrate.mjs --bundle --platform=node \
