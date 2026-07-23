@@ -4,8 +4,9 @@ const nextConfig: NextConfig = {
   // standalone es para la imagen Docker (Linux). En Windows el trazado crea
   // symlinks que requieren permisos elevados, así que ahí se omite.
   output: process.platform === "win32" ? undefined : "standalone",
-  // El paquete `postgres` usa APIs de Node que no deben empaquetarse en el bundle.
-  serverExternalPackages: ["postgres"],
+  // better-sqlite3 es un addon nativo (C++): no se puede bundlear, se carga
+  // desde node_modules en runtime. postgres ya no se usa (migración a SQLite).
+  serverExternalPackages: ["better-sqlite3"],
 };
 
 export default nextConfig;

@@ -33,9 +33,7 @@ FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN apk add --no-cache python3 make g++ && \
-    addgroup -S vocero && adduser -S vocero -G vocero && \
-    apk del python3 make g++
+RUN addgroup -S vocero && adduser -S vocero -G vocero
 
 COPY --from=builder --chown=vocero:vocero /app/.next/standalone ./
 COPY --from=builder --chown=vocero:vocero /app/.next/static ./.next/static
@@ -43,6 +41,10 @@ COPY --from=builder --chown=vocero:vocero /app/public ./public
 COPY --from=builder --chown=vocero:vocero /app/migrate.bundle.mjs ./migrate.mjs
 COPY --from=builder --chown=vocero:vocero /app/seed-demo.bundle.mjs ./seed-demo.mjs
 COPY --from=builder --chown=vocero:vocero /app/drizzle ./drizzle
+# better-sqlite3 es un addon nativo que Next.js standalone no detecta automáticamente.
+COPY --from=builder --chown=vocero:vocero /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
+COPY --from=builder --chown=vocero:vocero /app/node_modules/bindings ./node_modules/bindings
+COPY --from=builder --chown=vocero:vocero /app/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
 
 RUN mkdir -p /data && chown -R vocero:vocero /data
 USER vocero
